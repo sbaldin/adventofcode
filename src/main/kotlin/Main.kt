@@ -6,7 +6,7 @@ fun main(args: Array<String>) {
     println("Hello World!")
 
     PuzzleApplication().run {
-        val output = runPuzzle(getPuzzleInput())
+        val output = runPuzzle2(getPuzzleInput())
         println("Puzzle output:")
         println(output)
     }
