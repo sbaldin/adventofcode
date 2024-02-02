@@ -1,157 +1,91 @@
-/**
- * Your calculation isn't quite right.
- * It looks like some of the digits are actually spelled out with letters:
- * one, two, three, four, five, six, seven, eight, nine.
- *
- * Also count as valid "digits".
- *
- * two1nine
- * eightwothree
- * abcone2threexyz
- * xtwone3four
- * 4nineeightseven2
- * zoneight234
- * 7pqrstsixteen
- * In this example, the calibration values are
- * 29, 83, 13, 24, 42, 14, and 76.
- * Adding these together produces 281.
- */
-fun runPuzzle2(input: List<String>): Any {
-    println("Run Puzzle 2:")
-    val wordToDigitMap = mapOf(
-        "one" to 1,
-        "two" to 2,
-        "six" to 6,
-        "four" to 4,
-        "five" to 5,
-        "nine" to 9,
-        "seven" to 7,
-        "three" to 3,
-        "eight" to 8,
-    )
-    val resultList = mutableListOf<Int>()
+import kotlin.math.max
 
-    for (line in input) {
-        var leftDigit: Char? = null
-        var rightDigit: Char? = null
+typealias CubeSet = Triple<Int, Int, Int>
 
-        val leftThreeLetterWindow = StringBuilder()
-        val leftFourLetterWindow = StringBuilder()
-        val leftFiveLetterWindow = StringBuilder()
+val CubeSet.red: Int get() = this.first
+val CubeSet.green: Int get() = this.second
+val CubeSet.blue: Int get() = this.third
 
-        val rightThreeLetterWindow = StringBuilder()
-        val rightFourLetterWindow = StringBuilder()
-        val rightFiveLetterWindow = StringBuilder()
+typealias Game = Pair<Int, List<CubeSet>>
 
-        var rightIndex = line.lastIndex
+val Game.number: Int get() = this.first
+val Game.cubeSets: List<CubeSet> get() = this.second
 
-        for (leftIndex in 0..line.lastIndex) {
-            val leftChar = line[leftIndex]
-            val rightChar = line[rightIndex]
 
-            if (leftDigit == null) {
-                appendToWindowOrGetValue(leftThreeLetterWindow, 3, leftChar, wordToDigitMap)?.also {
-                    leftDigit = it
-                }
-                appendToWindowOrGetValue(leftFourLetterWindow, 4, leftChar, wordToDigitMap)?.also {
-                    leftDigit = it
-                }
-                appendToWindowOrGetValue(leftFiveLetterWindow, 5, leftChar, wordToDigitMap)?.also {
-                    leftDigit = it
-                }
-                if (leftChar.isDigit()) {
-                    leftDigit = leftChar
-                }
-            }
+fun runPuzzleDay2Part1(input: List<String>): Any {
+    // bag should contain only 12 red cubes, 13 green cubes, and 14 blue cubes
+    val expectedCubesInBag = CubeSet(12, 13, 14)
 
-            if (rightDigit == null) {
-                appendToWindowOrGetValue(rightThreeLetterWindow, 3, rightChar, wordToDigitMap, false)?.also {
-                    rightDigit = it
-                }
-                appendToWindowOrGetValue(rightFourLetterWindow, 4, rightChar, wordToDigitMap, false)?.also {
-                    rightDigit = it
-                }
-                appendToWindowOrGetValue(rightFiveLetterWindow, 5, rightChar, wordToDigitMap, false)?.also {
-                    rightDigit = it
-                }
-                if (rightChar.isDigit()) {
-                    rightDigit = rightChar
-                }
-            }
-
-            if (leftDigit != null && rightDigit != null) {
-                resultList.add(mergeDigits(leftDigit!!, rightDigit!!))
-                break
-            }
-            rightIndex--
-        }
+    return input.map {
+        it.toGame()
+    }.filter { game ->
+        game.cubeSets.none { it.red > expectedCubesInBag.red || it.blue > expectedCubesInBag.blue || it.green > expectedCubesInBag.green }
+    }.sumOf { game ->
+        game.number
     }
-    resultList.joinToString().also { println(it) }
-
-    return resultList.sum()
 }
 
-private fun appendToWindowOrGetValue(
-    letterWindow: StringBuilder,
-    windowSize: Int,
-    currentChar: Char,
-    wordToDigitMap: Map<String, Int>,
-    appendToRight: Boolean = true
-): Char? {
-    var leftDigit: Char? = null
-    letterWindow.append(currentChar)
-    if (letterWindow.length == windowSize) {
-        val word = if (appendToRight) {
-            letterWindow.toString()
-        } else {
-            letterWindow.toString().reversed()
+fun runPuzzleDay2Part2(input: List<String>): Any {
+    return input.sumOf { line ->
+        var blue = 1
+        var red = 1
+        var green = 1
+
+        line.toGame().cubeSets.forEach {
+            // call java Math.max
+            red = max(it.red, red)
+            green = max(it.green, green)
+            blue = max(it.blue, blue)
         }
-        val digit = wordToDigitMap[word]
-        leftDigit = digit?.run { Character.forDigit(digit, 10) }
-        letterWindow.deleteCharAt(0)
+
+        blue * red * green
     }
-    return leftDigit
 }
 
-private fun attemptWithReplace(
-    input: List<String>,
-    wordDigit: Map<String, Int>
-): Int {
-    val resultList = mutableListOf<Int>()
+// String here should follow contract:  Game 42: 7 green, 2 blue, 1 red; 8 green, 4 red; 5 blue, 1 red, 3 green
+private fun String.toGame(): Game {
+    val (gameStr, cubeSetStr) = split(":")
 
-    for (line in input) {
-        var leftDigit: Char? = null
-        var rightDigit: Char? = null
+    // We can use here regexp, but it's slow
+    // val gameNumber = "game (\\d+)".toRegex().find(gameStr)?.groupValues[1]?.toInt() ?: throw IllegalStateException("Can't find game number.")
 
-        var lineBuffer = line
-        wordDigit.entries.forEach { (digitAsWord, digit) ->
-            lineBuffer = lineBuffer.replace(digitAsWord, digit.toString())
-        }
-        var rightIndex = lineBuffer.lastIndex
+    // Here is a simple way to do the same
+    val gameNumber = gameStr.split("Game ").last().toInt()
 
-        for (leftIndex in 0..lineBuffer.lastIndex) {
-            val leftChar = lineBuffer[leftIndex]
-
-            if (leftDigit == null && leftChar.isDigit()) {
-                leftDigit = leftChar
-            }
-
-            val rightChar = lineBuffer[rightIndex]
-            if (rightDigit == null && rightChar.isDigit()) {
-                rightDigit = rightChar
-            }
-
-            if (leftDigit != null && rightDigit != null) {
-                resultList.add(mergeDigits(leftDigit, rightDigit))
-                break
-            }
-            rightIndex--
-        }
+    val cubeSets: List<CubeSet> = cubeSetStr.split(";").map { cubesStr ->
+        cubesStr.trim().toCubeSet()
     }
-    resultList.joinToString().also { println(it) }
 
-    return resultList.sum()
+    return Game(gameNumber, cubeSets)
 }
 
-private fun mergeDigits(leftDigit: Char, rightDigit: Char) =
-    Character.getNumericValue(leftDigit) * 10 + Character.getNumericValue(rightDigit.code)
+private fun String.toCubeSet(): CubeSet {
+    // 7 green, 2 blue, 1 red -> array([7, green], [2, blue], [1, red])
+    val chunkedCubes = replace(",", "").split(" ").chunked(2)
+    var red = 0
+    var green = 0
+    var blue = 0
+    //array([7, green], [2, blue], [1, red]) -> for each will call it one after another -> (7, green), and so on
+    try {
+        chunkedCubes.forEach { (cubeCount, cubeColor) ->
+            when (cubeColor) {
+                "red" -> {
+                    red = cubeCount.toInt()
+                }
+
+                "green" -> {
+                    green = cubeCount.toInt()
+                }
+
+                "blue" -> {
+                    blue = cubeCount.toInt()
+                }
+
+            }
+        }
+    } catch (e: Exception) {
+        println(chunkedCubes.joinToString { it.joinToString() })
+        throw e
+    }
+    return CubeSet(red, green, blue)
+}

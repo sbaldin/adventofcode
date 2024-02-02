@@ -6,7 +6,7 @@ fun main(args: Array<String>) {
     println("Hello World!")
 
     PuzzleApplication().run {
-        val output = runPuzzle2(getPuzzleInput())
+        val output = runPuzzleDay2Part2(getPuzzleInput())
         println("Puzzle output:")
         println(output)
     }
@@ -17,5 +17,5 @@ class PuzzleApplication
 
 private fun PuzzleApplication.getPuzzleInput(): List<String> = javaClass
     .classLoader
-    .getResourceAsStream("./puzzle_input.txt")
+    .getResourceAsStream("./puzzle_input_day2.txt")
     ?.reader()?.readLines() ?: throw FileNotFoundException("Can't find puzzle_input.txt in resource folder!")
