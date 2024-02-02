@@ -1,3 +1,5 @@
+package com.github.sbaldin.adventofcode
+
 /**
  * As they're making the final adjustments, they discover that their calibration document (your puzzle input) has been
  * amended by a very young Elf who was apparently just excited to show off her art skills. Consequently,

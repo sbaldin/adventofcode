@@ -1,3 +1,5 @@
+package com.github.sbaldin.adventofcode
+
 import kotlin.math.max
 
 typealias CubeSet = Triple<Int, Int, Int>
@@ -27,18 +29,18 @@ fun runPuzzleDay2Part1(input: List<String>): Any {
 
 fun runPuzzleDay2Part2(input: List<String>): Any {
     return input.sumOf { line ->
-        var blue = 1
-        var red = 1
-        var green = 1
+        var maxRed = 1
+        var maxGreen = 1
+        var maxBlue = 1
 
         line.toGame().cubeSets.forEach {
             // call java Math.max
-            red = max(it.red, red)
-            green = max(it.green, green)
-            blue = max(it.blue, blue)
+            maxRed = max(it.red, maxRed)
+            maxGreen = max(it.green, maxGreen)
+            maxBlue = max(it.blue, maxBlue)
         }
 
-        blue * red * green
+        maxBlue * maxRed * maxGreen
     }
 }
 
