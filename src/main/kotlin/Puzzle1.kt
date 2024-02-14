@@ -52,7 +52,6 @@ fun runPuzzleDay1Part1(input: List<String>): Any {
             rightIndex--
         }
     }
-    resultList.joinToString().also { println(it) }
 
     return resultList.sum()
 }
