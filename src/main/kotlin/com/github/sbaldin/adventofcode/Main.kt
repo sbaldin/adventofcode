@@ -20,4 +20,4 @@ class PuzzleApplication
 private fun PuzzleApplication.getPuzzleInput(): List<String> = javaClass
     .classLoader
     .getResourceAsStream("puzzle_input_day3.txt")
-    ?.reader()?.readLines() ?: throw FileNotFoundException("Can't find puzzle_input.txt in resource folder!")
+    ?.reader()?.readLines() ?: throw FileNotFoundException("Can't find puzzle_input_day4.txt in resource folder!")

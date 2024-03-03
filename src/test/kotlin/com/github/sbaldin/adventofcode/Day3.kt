@@ -75,7 +75,7 @@ class Day3Part2 : StringSpec({
             ...*......
             ..900..679
         """.trimIndent().lines()
-        runPuzzle3Advanced(input1) shouldBe 8100
+        runPuzzle3Advanced(input1) shouldBe 810000
 
         val input2 = """
             ..399.....
