@@ -75,7 +75,7 @@ class Day3Part2 : StringSpec({
             ...*......
             ..900..679
         """.trimIndent().lines()
-        runPuzzle3Advanced(input1) shouldBe 8100
+        runPuzzle3Advanced(input1) shouldBe 810000
 
         val input2 = """
             ..399.....
@@ -111,5 +111,22 @@ class Day3Part2 : StringSpec({
         """.trimIndent().lines()
 
         runPuzzleDay3Part1(input) shouldBe 1
+    }
+
+    "test day 3 data" {
+        val input = """
+           467..114..
+           ...*......
+           ..35..633.
+           ......#...
+           617*......
+           .....+.58.
+           ..592.....
+           ......755.
+           ...$.*....
+           .664.598..
+        """.trimIndent().lines()
+
+        runPuzzle3Advanced(input) shouldBe 467835
     }
 })

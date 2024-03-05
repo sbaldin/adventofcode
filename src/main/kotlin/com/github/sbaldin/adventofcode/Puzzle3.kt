@@ -66,7 +66,7 @@ typealias NumberOrStar = Pair<Int, StringBuilder>
 val NumberOrStar.position: Int get() = this.first
 val NumberOrStar.value: StringBuilder get() = this.second
 val NumberOrStar.valueAsInt: Int get() = this.second.toString().toInt()
-val NumberOrStar.valueRange: IntRange get() = IntRange(position, (position + value.length - 1).coerceAtLeast(0))
+val NumberOrStar.valueRange: IntRange get() = IntRange(position, (position + value.lastIndex).coerceAtLeast(0))
 
 fun runPuzzle3Advanced(input: List<String>): Any {
     var sum = 0
@@ -79,9 +79,14 @@ fun runPuzzle3Advanced(input: List<String>): Any {
         }.filter {
             it.value.toString() == "*"
         }.map { (position, _) ->
-            sum += getNumbers(parsedLines, input, lineNumber, position).fold(1) { result, current ->
-                result * current.valueAsInt
-            }
+            // take numbers that surround the current star
+            sum += getNumbers(parsedLines, input, lineNumber, position)
+                // according to the task we have process two or more numbers, one number we will ignore
+                .takeIf { it.size > 1 }
+                // so than fold it and  sum
+                ?.fold(1) { result, current ->
+                    result * current.valueAsInt
+                } ?: 0
         }
 
     }
@@ -124,19 +129,23 @@ fun getNumbers(
  **/
 fun String.parseNumberAndStars(): List<NumberOrStar> =
     this.foldIndexed<MutableList<NumberOrStar>>(mutableListOf()) { index, r, char ->
-        val numberOrStar =
+        val lastParsedNumber =
+            //Get last Number that we parsed or create a new StringBuilder for it
             r.lastOrNull { it.value.toString() != "*" } ?: NumberOrStar(index, StringBuilder()).also { r.add(it) }
-        when {
-            char.isDigit() && listOf(index, index - 1).any { it in numberOrStar.valueRange } -> {
-                numberOrStar.value.append(char)
-            }
 
+        when {
+            //if new digit is near to previous number than add such digit to number
+            char.isDigit() && listOf(index, index - 1).any { it in lastParsedNumber.valueRange } -> {
+                lastParsedNumber.value.append(char)
+            }
+            // else we think that it's a starting of new number
+            // than add digit to empty string build and put in all to result
             char.isDigit() -> {
                 r.add(NumberOrStar(index, StringBuilder("" + char)))
             }
-
+            // finally if char is star than put it as Start to result
             char == '*' -> {
-                r.add(NumberOrStar(index, StringBuilder()))
+                r.add(NumberOrStar(index, StringBuilder("*")))
             }
         }
         r.filterNotTo(mutableListOf()) { it.value.isEmpty() }
