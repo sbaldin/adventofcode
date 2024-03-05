@@ -79,9 +79,14 @@ fun runPuzzle3Advanced(input: List<String>): Any {
         }.filter {
             it.value.toString() == "*"
         }.map { (position, _) ->
-            sum += getNumbers(parsedLines, input, lineNumber, position).fold(1) { result, current ->
-                result * current.valueAsInt
-            }
+            // take numbers that surround the current star
+            sum += getNumbers(parsedLines, input, lineNumber, position)
+                // according to the task we have process two or more numbers, one number we will ignore
+                .takeIf { it.size > 1 }
+                // so than fold it and  sum
+                ?.fold(1) { result, current ->
+                    result * current.valueAsInt
+                } ?: 0
         }
 
     }
